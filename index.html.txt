@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoGalaktika — Агрегатор автомобильных объявлений</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Навигация -->
+    <header class="bg-slate-800/90 backdrop-blur border-b border-slate-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="router.navigate('home')">
+                <div class="bg-blue-600 p-2 rounded-xl text-white font-bold text-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-car-burst"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-black tracking-wider bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">AutoGalaktika</span>
+                    <span class="block text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Агрегатор авто</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button onclick="router.navigate('favorites')" class="relative p-2 text-slate-300 hover:text-white transition rounded-lg hover:bg-slate-700/50">
+                    <i class="fa-solid fa-heart text-xl"></i>
+                    <span id="favorites-badge" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
+                </button>
+                <button onclick="router.navigate('add')" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2 rounded-xl transition shadow-lg shadow-blue-600/20 flex items-center space-x-2">
+                    <i class="fa-solid fa-plus text-sm"></i>
+                    <span class="hidden sm:inline">Подать объявление</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" id="app-container">
+        <!-- Сюда динамически рендерится страница -->
+    </main>
+
+    <!-- Футер -->
+    <footer class="bg-slate-800 border-t border-slate-700 mt-auto py-8 text-center text-slate-400 text-sm">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2026 AutoGalaktika. Все права защищены. Современный автоагрегатор.</p>
+        </div>
+    </footer>
+
+    <!-- Шаблоны страниц и логика JS -->
+    <script>
+        // Начальная база автомобилей
+        const initialCars = [
+            {
+                id: 1,
+                brand: "Volkswagen",
+                model: "Touran (Facelift)",
+                year: 2008,
+                price: 6450,
+                mileage: 185000,
+                fuel: "Дизель",
+                transmission: "Механика",
+                body: "Минивэн",
+                color: "Синий металлик",
+                engine: "1.9 TDI (105 л.с.)",
+                city: "Гамбург",
+                phone: "+49 152 34567890",
+                seller: "Частное лицо",
+                description: "Продаю надежный семейный минивэн в отличном техническом состоянии. Рестайлинговая модель, синий цвет, чистый ухоженный салон. ТО пройдено вовремя, ходовая в идеале, коробка и двигатель работают без нареканий.",
+                images: [
+                    "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80"
+                ],
+                date: "2026-06-10"
+            },
+            {
+                id: 2,
+                brand: "BMW",
+                model: "3 Series (F30)",
+                year: 2015,
+                price: 18900,
+                mileage: 124000,
+                fuel: "Бензин",
+                transmission: "Автомат",
+                body: "Седан",
+                color: "Черный",
+                engine: "2.0 л (184 л.с.)",
+                city: "Бремен",
+                phone: "+49 176 98765432",
+                seller: "Автосалон",
+                description: "Отличный динамичный седан. Богатая комплектация: спортивные сиденья, мультимедиа Professional, двухзонный климат-контроль, светодиодная оптика. Полная сервисная история.",
+                images: [
+                    "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=800&q=80"
+                ],
+                date: "2026-06-12"
+            },
+            {
+                id: 3,
+                brand: "Audi",
+                model: "A4 Avant",
+                year: 2017,
+                price: 21500,
+                mileage: 142000,
+                fuel: "Дизель",
+                transmission: "Автомат",
+                body: "Универсал",
+                color: "Серый",
+                engine: "2.0 TDI (190 л.с.)",
+                city: "Ганновер",
+                phone: "+49 151 11223344",
+                seller: "Частное лицо",
+                description: "Просторный универсал с экономичным и мощным дизельным мотором. Полный привод Quattro, виртуальная приборная панель, навигация MMI, панорамная крыша.",
+                images: [
+                    "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=800&q=80"
+                ],
+                date: "2026-06-14"
+            },
+            {
+                id: 4,
+                brand: "Skoda",
+                model: "Octavia",
+                year: 2019,
+                price: 17300,
+                mileage: 98000,
+                fuel: "Бензин",
+                transmission: "Механика",
+                body: "Лифтбек",
+                color: "Белый",
+                engine: "1.4 TSI (150 л.с.)",
+                city: "Любек",
+                phone: "+49 172 55443322",
+                seller: "Автосалон",
+                description: "Идеальный автомобиль для города и путешествий. Огромный багажник, отличное состояние кузова и салона. Один владелец.",
+                images: [
+                    "https://images.unsplash.com/photo-1541899481282-d53bffe3c351?auto=format&fit=crop&w=800&q=80"
+                ],
+                date: "2026-06-15"
+            }
+        ];
+
+        // Управление состоянием приложения
+        let state = {
+            cars: JSON.parse(localStorage.getItem('autogalaktika_cars')) || initialCars,
+            favorites: JSON.parse(localStorage.getItem('autogalaktika_favorites')) || [],
+            currentRoute: 'home',
+            currentCarId: null,
+            filters: {
+                brand: '',
+                fuel: '',
+                transmission: '',
+                maxPrice: '',
+                sort: 'new'
+            }
+        };
+
+        function saveState() {
+            localStorage.setItem('autogalaktika_cars', JSON.stringify(state.cars));
+            localStorage.setItem('autogalaktika_favorites', JSON.stringify(state.favorites));
+            updateFavoritesBadge();
+        }
+
+        function updateFavoritesBadge() {
+            const badge = document.getElementById('favorites-badge');
+            if (state.favorites.length > 0) {
+                badge.innerText = state.favorites.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        // Маршрутизатор
+        const router = {
+            navigate: (route, param = null) => {
+                state.currentRoute = route;
+                state.currentCarId = param;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                render();
+            }
+        };
+
+        // Переключение избранного
+        function toggleFavorite(id, event) {
+            if (event) event.stopPropagation();
+            const index = state.favorites.indexOf(id);
+            if (index > -1) {
+                state.favorites.splice(index, 1);
+            } else {
+                state.favorites.push(id);
+            }
+            saveState();
+            render();
+        }
+
+        // Рендеринг приложения
+        function render() {
+            const container = document.getElementById('app-container');
+            updateFavoritesBadge();
+
+            if (state.currentRoute === 'home') {
+                container.innerHTML = renderHome();
+                initHomeEvents();
+            } else if (state.currentRoute === 'detail') {
+                container.innerHTML = renderDetail(state.currentCarId);
+            } else if (state.currentRoute === 'add') {
+                container.innerHTML = renderAddForm();
+                initAddFormEvents();
+            } else if (state.currentRoute === 'favorites') {
+                container.innerHTML = renderFavorites();
+            }
+        }
+
+        // --- Шаблон главной страницы ---
+        function renderHome() {
+            const brands = [...new Set(state.cars.map(c => c.brand))];
+            
+            // Фильтрация
+            let filtered = state.cars.filter(car => {
+                if (state.filters.brand && car.brand !== state.filters.brand) return false;
+                if (state.filters.fuel && car.fuel !== state.filters.fuel) return false;
+                if (state.filters.transmission && car.transmission !== state.filters.transmission) return false;
+                if (state.filters.maxPrice && car.price > Number(state.filters.maxPrice)) return false;
+                return true;
+            });
+
+            // Сортировка
+            filtered.sort((a, b) => {
+                if (state.filters.sort === 'price-asc') return a.price - b.price;
+                if (state.filters.sort === 'price-desc') return b.price - a.price;
+                if (state.filters.sort === 'year') return b.year - a.year;
+                return new Date(b.date) - new Date(a.date);
+            });
+
+            return `
+                <div class="space-y-8">
+                    <!-- Баннер / Заголовок -->
+                    <div class="bg-gradient-to-r from-blue-900/60 to-indigo-900/60 border border-blue-800/50 rounded-2xl p-6 sm:p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div>
+                            <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Найдите автомобиль своей мечты</h1>
+                            <p class="text-slate-300 mt-2 max-w-xl">Лучшие предложения вторичного рынка с проверенными характеристиками и реальными контактами продавцов.</p>
+                        </div>
+                        <div class="bg-slate-800/80 px-6 py-4 rounded-xl border border-slate-700 text-center">
+                            <span class="block text-3xl font-black text-blue-400">${state.cars.length}</span>
+                            <span class="text-xs text-slate-400 uppercase tracking-wider">Автомобилей в каталоге</span>
+                        </div>
+                    </div>
+
+                    <!-- Панель фильтров -->
+                    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Марка</label>
+                                <select id="filter-brand" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+                                    <option value="">Все марки</option>
+                                    ${brands.map(b => `<option value="${b}" ${state.filters.brand === b ? 'selected' : ''}>${b}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Топливо</label>
+                                <select id="filter-fuel" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+                                    <option value="">Любое</option>
+                                    <option value="Бензин" ${state.filters.fuel === 'Бензин' ? 'selected' : ''}>Бензин</option>
+                                    <option value="Дизель" ${state.filters.fuel === 'Дизель' ? 'selected' : ''}>Дизель</option>
+                                    <option value="Электро" ${state.filters.fuel === 'Электро' ? 'selected' : ''}>Электро</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Коробка передач</label>
+                                <select id="filter-transmission" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+                                    <option value="">Любая</option>
+                                    <option value="Механика" ${state.filters.transmission === 'Механика' ? 'selected' : ''}>Механика</option>
+                                    <option value="Автомат" ${state.filters.transmission === 'Автомат' ? 'selected' : ''}>Автомат</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Макс. цена (€)</label>
+                                <input type="number" id="filter-maxprice" value="${state.filters.maxPrice}" placeholder="Напр. 20000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Сортировка</label>
+                                <select id="filter-sort" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+                                    <option value="new" ${state.filters.sort === 'new' ? 'selected' : ''}>Сначала новые</option>
+                                    <option value="price-asc" ${state.filters.sort === 'price-asc' ? 'selected' : ''}>Сначала дешевле</option>
+                                    <option value="price-desc" ${state.filters.sort === 'price-desc' ? 'selected' : ''}>Сначала дороже</option>
+                                    <option value="year" ${state.filters.sort === 'year' ? 'selected' : ''}>По году выпуска</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex justify-end mt-4 pt-4 border-t border-slate-700 space-x-3">
+                            <button onclick="resetFilters()" class="px-4 py-2 text-sm text-slate-400 hover:text-white transition">Сбросить</button>
+                        </div>
+                    </div>
+
+                    <!-- Список автомобилей -->
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-xl font-bold text-white">Доступные предложения (${filtered.length})</h2>
+                        </div>
+                        
+                        ${filtered.length === 0 ? `
+                            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-12 text-center text-slate-400">
+                                <i class="fa-solid fa-car text-5xl mb-3 text-slate-600"></i>
+                                <p class="text-lg font-medium">По вашему запросу ничего не найдено</p>
+                                <p class="text-sm mt-1">Попробуйте изменить параметры фильтрации.</p>
+                            </div>
+                        ` : `
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                ${filtered.map(car => renderCarCard(car)).join('')}
+                            </div>
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCarCard(car) {
+            const isFav = state.favorites.includes(car.id);
+            return `
+                <div onclick="router.navigate('detail', ${car.id})" class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-lg hover:border-blue-500 transition cursor-pointer flex flex-col group">
+                    <div class="relative h-48 bg-slate-900 overflow-hidden">
+                        <img src="${car.images[0]}" alt="${car.brand} ${car.model}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        <button onclick="toggleFavorite(${car.id}, event)" class="absolute top-3 right-3 bg-slate-900/70 backdrop-blur p-2.5 rounded-full text-white hover:bg-slate-900 transition">
+                            <i class="fa-solid fa-heart ${isFav ? 'text-rose-500' : 'text-slate-300'}"></i>
+                        </button>
+                        <div class="absolute bottom-3 left-3 bg-blue-600 text-white text-xs font-semibold px-2.5 py-1 rounded-lg">
+                            ${car.year} г.
+                        </div>
+                    </div>
+                    <div class="p-5 flex-grow flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <h3 class="text-lg font-bold text-white group-hover:text-blue-400 transition">${car.brand} ${car.model}</h3>
+                                <span class="text-xl font-extrabold text-blue-400">€${car.price.toLocaleString()}</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> ${car.city}</p>
+                            
+                            <div class="grid grid-cols-2 gap-2 mt-4 text-xs text-slate-300 bg-slate-900/50 p-2.5 rounded-xl border border-slate-700/50">
+                                <div><i class="fa-solid fa-road mr-1 text-slate-500"></i> ${car.mileage.toLocaleString()} км</div>
+                                <div><i class="fa-solid fa-gas-pump mr-1 text-slate-500"></i> ${car.fuel}</div>
+                                <div><i class="fa-solid fa-gears mr-1 text-slate-500"></i> ${car.transmission}</div>
+                                <div><i class="fa-solid fa-car-side mr-1 text-slate-500"></i> ${car.body}</div>
+                            </div>
+                        </div>
+                        <div class="mt-5 pt-3 border-t border-slate-700/60 flex items-center justify-between text-xs text-slate-400">
+                            <span>${car.seller}</span>
+                            <span class="text-blue-400 font-medium group-hover:underline">Подробнее &rarr;</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function initHomeEvents() {
+            document.getElementById('filter-brand').addEventListener('change', (e) => {
+                state.filters.brand = e.target.value;
+                render();
+            });
+            document.getElementById('filter-fuel').addEventListener('change', (e) => {
+                state.filters.fuel = e.target.value;
+                render();
+            });
+            document.getElementById('filter-transmission').addEventListener('change', (e) => {
+                state.filters.transmission = e.target.value;
+                render();
+            });
+            document.getElementById('filter-maxprice').addEventListener('input', (e) => {
+                state.filters.maxPrice = e.target.value;
+                render();
+            });
+            document.getElementById('filter-sort').addEventListener('change', (e) => {
+                state.filters.sort = e.target.value;
+                render();
+            });
+        }
+
+        function resetFilters() {
+            state.filters = { brand: '', fuel: '', transmission: '', maxPrice: '', sort: 'new' };
+            render();
+        }
+
+        // --- Шаблон детальной страницы ---
+        function renderDetail(id) {
+            const car = state.cars.find(c => c.id === id);
+            if (!car) return `<div class="text-center py-20"><p class="text-xl">Автомобиль не найден</p><button onclick="router.navigate('home')" class="mt-4 bg-blue-600 px-4 py-2 rounded-xl text-white">На главную</button></div>`;
+
+            const isFav = state.favorites.includes(car.id);
+
+            return `
+                <div class="space-y-6 max-w-5xl mx-auto">
+                    <!-- Кнопка назад -->
+                    <button onclick="router.navigate('home')" class="inline-flex items-center space-x-2 text-slate-400 hover:text-white transition text-sm font-medium">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>Вернуться к каталогу</span>
+                    </button>
+
+                    <!-- Шапка объявления -->
+                    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <div class="flex items-center space-x-3">
+                                <span class="bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded-lg">${car.year} год</span>
+                                <span class="text-slate-400 text-xs"><i class="fa-solid fa-location-dot mr-1"></i> ${car.city}</span>
+                            </div>
+                            <h1 class="text-2xl sm:text-3xl font-extrabold text-white mt-2">${car.brand} ${car.model}</h1>
+                        </div>
+                        <div class="flex items-center space-x-4 w-full md:w-auto justify-between md:justify-end">
+                            <div class="text-2xl sm:text-3xl font-black text-blue-400">€${car.price.toLocaleString()}</div>
+                            <button onclick="toggleFavorite(${car.id})" class="bg-slate-700 hover:bg-slate-600 p-3 rounded-xl text-white transition">
+                                <i class="fa-solid fa-heart ${isFav ? 'text-rose-500' : 'text-slate-300'} text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Галерея -->
+                    <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl p-4">
+                        <div class="h-80 sm:h-[450px] rounded-xl overflow-hidden bg-slate-900">
+                            <img src="${car.images[0]}" alt="" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+
+                    <!-- Контент деталпа -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Основная информация -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
+                                <h2 class="text-lg font-bold text-white mb-4">Характеристики</h2>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+                                        <span class="block text-xs text-slate-400">Пробег</span>
+                                        <span class="font-bold text-white">${car.mileage.toLocaleString()} км</span>
+                                    </div>
+                                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+                                        <span class="block text-xs text-slate-400">Коробка</span>
+                                        <span class="font-bold text-white">${car.transmission}</span>
+                                    </div>
+                                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+                                        <span class="block text-xs text-slate-400">Двигатель</span>
+                                        <span class="font-bold text-white">${car.engine}</span>
+                                    </div>
+                                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+                                        <span class="block text-xs text-slate-400">Тип топлива</span>
+                                        <span class="font-bold text-white">${car.fuel}</span>
+                                    </div>
+                                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+                                        <span class="block text-xs text-slate-400">Кузов</span>
+                                        <span class="font-bold text-white">${car.body}</span>
+                                    </div>
+                                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+                                        <span class="block text-xs text-slate-400">Цвет</span>
+                                        <span class="font-bold text-white">${car.color}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
+                                <h2 class="text-lg font-bold text-white mb-3">Описание от продавца</h2>
+                                <p class="text-slate-300 leading-relaxed whitespace-pre-line">${car.description}</p>
+                            </div>
+                        </div>
+
+                        <!-- Блок продавца -->
+                        <div class="space-y-6">
+                            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl sticky top-24">
+                                <div class="flex items-center space-x-3 mb-6">
+                                    <div class="bg-blue-600/20 text-blue-400 w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <span class="block text-xs text-slate-400">Продавец</span>
+                                        <span class="font-bold text-white text-base">${car.seller}</span>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <button onclick="alert('Телефон продавца: ${car.phone}')" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-blue-600/20 flex items-center justify-center space-x-2">
+                                        <i class="fa-solid fa-phone"></i>
+                                        <span>Показать телефон</span>
+                                    </button>
+                                    <button onclick="alert('Сообщение отправлено продавцу!')" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-medium py-3 rounded-xl transition flex items-center justify-center space-x-2">
+                                        <i class="fa-solid fa-envelope"></i>
+                                        <span>Написать сообщение</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- Шаблон формы добавления авто ---
+        function renderAddForm() {
+            return `
+                <div class="max-w-2xl mx-auto bg-slate-800 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-xl">
+                    <h1 class="text-2xl font-black text-white mb-6">Подать объявление о продаже</h1>
+                    <form id="add-car-form" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Марка *</label>
+                                <input type="text" name="brand" required placeholder="Напр. Volkswagen" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Модель *</label>
+                                <input type="text" name="model" required placeholder="Напр. Passat B8" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Год выпуска *</label>
+                                <input type="number" name="year" required value="2020" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Цена (€) *</label>
+                                <input type="number" name="price" required placeholder="15000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Пробег (км) *</label>
+                                <input type="number" name="mileage" required placeholder="120000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Топливо</label>
+                                <select name="fuel" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+                                    <option value="Бензин">Бензин</option>
+                                    <option value="Дизель">Дизель</option>
+                                    <option value="Электро">Электро</option>
+                                    <option value="Гибрид">Гибрид</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">КПП</label>
+                                <select name="transmission" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+                                    <option value="Механика">Механика</option>
+                                    <option value="Автомат">Автомат</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Кузов</label>
+                                <select name="body" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+                                    <option value="Седан">Седан</option>
+                                    <option value="Универсал">Универсал</option>
+                                    <option value="Хэтчбек">Хэтчбек</option>
+                                    <option value="Минивэн">Минивэн</option>
+                                    <option value="Внедорожник">Внедорожник</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Город</label>
+                                <input type="text" name="city" value="Гамбург" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Телефон</label>
+                                <input type="text" name="phone" value="+49 150 0000000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Двигатель</label>
+                                <input type="text" name="engine" placeholder="2.0 TDI" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Ссылка на фото (URL)</label>
+                            <input type="url" name="image" placeholder="https://images.unsplash.com/..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Описание</label>
+                            <textarea name="description" rows="4" placeholder="Расскажите об автомобиле..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500"></textarea>
+                        </div>
+
+                        <div class="flex justify-end space-x-3 pt-4">
+                            <button type="button" onclick="router.navigate('home')" class="px-5 py-2.5 text-slate-400 hover:text-white transition">Отмена</button>
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-6 py-2.5 rounded-xl transition shadow-lg shadow-blue-600/20">Опубликовать</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+        }
+
+        function initAddFormEvents() {
+            document.getElementById('add-car-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const newCar = {
+                    id: Date.now(),
+                    brand: formData.get('brand'),
+                    model: formData.get('model'),
+                    year: Number(formData.get('year')),
+                    price: Number(formData.get('price')),
+                    mileage: Number(formData.get('mileage')),
+                    fuel: formData.get('fuel'),
+                    transmission: formData.get('transmission'),
+                    body: formData.get('body'),
+                    color: "Черный",
+                    engine: formData.get('engine') || "2.0 л",
+                    city: formData.get('city'),
+                    phone: formData.get('phone'),
+                    seller: "Частное лицо",
+                    description: formData.get('description') || "Без описания",
+                    images: [
+                        formData.get('image') || "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80"
+                    ],
+                    date: new Date().toISOString().split('T')[0]
+                };
+
+                state.cars.unshift(newCar);
+                saveState();
+                router.navigate('home');
+            });
+        }
+
+        // --- Страница избранного ---
+        function renderFavorites() {
+            const favCars = state.cars.filter(c => state.favorites.includes(c.id));
+            return `
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h1 class="text-2xl font-extrabold text-white">Избранные автомобили (${favCars.length})</h1>
+                        <button onclick="router.navigate('home')" class="text-sm text-blue-400 hover:underline">К каталогу</button>
+                    </div>
+
+                    ${favCars.length === 0 ? `
+                        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-12 text-center text-slate-400">
+                            <i class="fa-solid fa-heart-crack text-5xl mb-3 text-slate-600"></i>
+                            <p class="text-lg font-medium">У вас пока нет избранных объявлений</p>
+                            <p class="text-sm mt-1">Нажимайте на сердечко на карточках автомобилей, чтобы сохранить их.</p>
+                        </div>
+                    ` : `
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            ${favCars.map(car => renderCarCard(car)).join('')}
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        // Инициализация при загрузке
+        render();
+    </script>
+</body>
+</html>
